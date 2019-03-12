@@ -1,43 +1,36 @@
-
 <!DOCTYPE html>
 <html>
-
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
 	<title>IT202-Project2</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-	 crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    
 	<style>
         .template {display: none;}
         .content {display: none; margin: 1em;}
         #map {height:500px;}
 	</style>
 </head>
-
 <body>
-	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<a class="navbar-brand" href="#">Graffiti Removal</a>
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-    </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="#home">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#list">List</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#map">Map</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#detail">About</a>
-      </li>
-    </ul>
-  </div>
-  </nav>
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Grafitti Removal</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li> <a class="nav-link" href="#home">Home <span class="sr-only">(current)</span></a> </li>
+          <li> <a class="nav-link" href="#list">List</a> </li>
+          <li> <a class="nav-link" href="#map">Map</a> </li>
+          <li> <a class="nav-link" href="#about">About</a> </li>
+        </ul>
+      </div>
+    </nav>
+    
   <div class="content" id="home">
     <input type="text" id="ward">
     <select id="status">
@@ -49,38 +42,38 @@
   </div>
   <div class="content" id="list"></div>
   <div class="content" id="map"></div>
+    
+   <div class="content" id="about">
+       <p>Developer: Gineesh Pillai</p>
+       <p>App Info: <a href="https://docs.google.com/document/d/19TMQWOlfCz6nbW2y85FWo4ewB2N0lwE0NSpYMt7nz7M/edit" target="_blank">Click Here</a></p>
+       <p>GitHub Repo: <a href="https://github.com/gpilla3/it202-project2" target="_blank">Click Here</a></p>
+   </div>
+    
     <div class="template card">
       <div class="card-body">
         <h5 class="card-title">Card title</h5>
         <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
       </div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
       var endpoint="https://data.cityofchicago.org/resource/cdmx-wzbz.json";
       var map, records = [], card =[];
       $(document).ready(function() {
         $("#map").css("height",$(window).height());
         showScreen("#home");
-
         function hideScreens() {
           $(".content").hide();
         }
-
         function showScreen(selected) {
           hideScreens();
           $(selected).css("height","100%");
           $(selected).show();
         }
-
         $(".nav-link").on("click", function(){
           hideScreens();
           var target = $(this).attr("href");
           $(target).show();
         });
-
         $("#search").on("click", function(){
           var url = endpoint + "?";
           if ($("#ward").val() != "") {
@@ -90,29 +83,27 @@
           if ($("#status").val() != "") {
             url+="status=" + $("#status").val() + "&";
           }
-
           $.get(url, function(data) {
             $("#list").empty();
+              
             $.each(data,function(i,v) {
               var clone = $(".card.template").clone();
               clone.find(".card-title").text(v.service_request_number);
               clone.find(".card-subtitle").text(v.street_address);
               clone.removeClass("template");
               $("#list").append(clone);
-                
+              var stuff = "Surface: " + v.what_type_of_surface_is_the_graffiti_on_ + "     Creation Date: " + v.creation_date + "     Status: " 
+              + v.status + "     Completion Date: " + v.completion_date + "     Request Num:" + v.service_request_number + "     Location: " + v.where_is_the_graffiti_located_ 
+              + "     Address: " + v.street_address;
               var marker = new google.maps.Marker({
                 position: {lat: parseFloat(v.latitude), lng: parseFloat(v.longitude)},
                 map: map,
-                title: 'Hello World!'
               });
               records.push(marker);
-
-              var infowindow = new google.maps.InfoWindow({content: clone.html()});
-
+              var infowindow = new google.maps.InfoWindow({content: stuff});
               marker.addListener('click', function() {
                 infowindow.open(map, marker);
               });
-
               card.push(infowindow);
             });
             
